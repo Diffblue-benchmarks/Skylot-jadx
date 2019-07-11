@@ -1,0 +1,194 @@
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+  # Constrain the size of arrays created in the analyzed code.
+  java-max-vla-length: 100000
+  # Set a limit on the number of instructions that can be generated as part of a test trace.
+  depth: false
+  # exclude trivial coverage test goals
+  no-trivial-tests: true 
+  # Do not test any methods that have the specified access level.
+  do-not-test-methods-with-access: [private]
+  # Instrument the entry point function only.
+  cover-function-only: false
+  # instrument the file as opposed to the function only
+  cover-only: file
+phases:
+  -
+    # Phase 0 PRETTY, SIMPLE and SMART - pretty tests, do not test private methods directly, Smart-Harness
+    timeout: 180
+    cbmcArguments:
+      # Use simple models first containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Instantiate classes using the simplest constructor strategy
+      smart-harness: simplest-constructor-and-nondet
+      # Force float and double inputs to have integer values.
+      java-assume-inputs-integral: true
+      # Only initialize numerical primitive-typed parameter within the given range
+      java-assume-inputs-interval: "[2:999999]"
+  -
+    # Phase 0 PRETTY, SIMPLE and SMART - pretty tests, do not test private methods directly, Smart-Harness
+    timeout: 180
+    cbmcArguments:
+      # Use simple models first containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Instantiate classes using the simplest constructor strategy
+      smart-harness: simplest-constructor-and-nondet
+      # Force float and double inputs to have integer values.
+      java-assume-inputs-integral: true
+      # Only initialize numerical primitive-typed parameter within the given range
+      java-assume-inputs-interval: "[-100:-2]"
+  -
+    # Phase 1 PRETTY AND COMPLEX - standard models only, pretty tests, do not test private methods directly, input factory
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Limit input factory recursive depth (default 0 = no recursion allowed)
+      java-test-input-factory-bmc-recursion-limit: 4
+      # Force float and double inputs to have integer values.
+      java-assume-inputs-integral: true
+  -
+    # Phase 2 FIFO Strategy - pretty tests, do not test private methods directly, fifo
+    timeout: 100
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Add constraint that strings are printable
+      max-nondet-string-length: 100
+      # Explores the program tree breadth-first.
+      paths: fifo
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: false
+  -
+    # Phase 3 Exceptions - do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+  -
+    # Phase 4 - Sledgehammer 
+    timeout: 240
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 50
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 16
+      # Add constraint that strings are printable
+      string-printable: false
+units:
+ - target:
+   - dir: jadx-gui/build/classes/java/main
+     file: jadx/gui/utils/FontUtils.class
+     sourceDir: jadx-gui/src/main/java
+     sourceFile: jadx/gui/utils/FontUtils.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/PrimitiveType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/PrimitiveType.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/StringUtils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/StringUtils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/api/JadxArgs.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/api/JadxArgs.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/xmlgen/XMLChar.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/xmlgen/XMLChar.java
+ - target:
+   - dir: jadx-gui/build/classes/java/main
+     file: jadx/gui/utils/CertificateManager.class
+     sourceDir: jadx-gui/src/main/java
+     sourceFile: jadx/gui/utils/CertificateManager.java
+
