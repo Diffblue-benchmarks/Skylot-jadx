@@ -1,0 +1,480 @@
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+  # Constrain the size of arrays created in the analyzed code.
+  java-max-vla-length: 100000
+phases:
+  -
+    # Phase 0 PRETTY, SIMPLE and SMART - pretty tests, do not test private methods directly, Smart-Harness
+    timeout: 180
+    cbmcArguments:
+      # Use simple models first containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Instantiate classes using the simplest constructor strategy
+      smart-harness: simplest-constructor-and-nondet
+  -
+    # Phase 1 PRETTY AND COMPLEX - standard models only, pretty tests, do not test private methods directly, input factory
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+      # Limit input factory recursive depth (default 0 = no recursion allowed)
+      java-test-input-factory-bmc-recursion-limit: 4
+  -
+    # Phase 2 FIFO Strategy - pretty tests, do not test private methods directly, fifo
+    timeout: 100
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Add constraint that strings are printable
+      max-nondet-string-length: 100
+      # Explores the program tree breadth-first.
+      paths: fifo
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: false
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 3 Exceptions - do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 4 Direct testing - test private methods directly, increased reflection
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+    # PHASE 5 Mocking - aggressive mocking, do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Only load the class (and related inner/outer classes) containing the method under test,
+      load-containing-class-only: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+units:
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/InsnUtils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/InsnUtils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/ConstStringNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/ConstStringNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/info/ClassAliasInfo.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/info/ClassAliasInfo.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/ConstClassNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/ConstClassNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/Utils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/Utils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/info/FieldInfo.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/info/FieldInfo.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/RegisterArg.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/RegisterArg.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/attributes/AttrNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/attributes/AttrNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/exceptions/JadxRuntimeException.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/exceptions/JadxRuntimeException.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/InsnWrapArg.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/InsnWrapArg.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$KnownType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/info/InfoStorage.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/info/InfoStorage.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$ObjectType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/RootNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/RootNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/ClassNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/ClassNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/FieldNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/FieldNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/SSAVar.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/SSAVar.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/attributes/AttributeStorage.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/attributes/AttributeStorage.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/InsnNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/InsnNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/IndexInsnNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/IndexInsnNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/InsnArg.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/InsnArg.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/InsnType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/InsnType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/parser/FieldInitAttr.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/parser/FieldInitAttr.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/info/ClassInfo.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/info/ClassInfo.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/DexNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/DexNode.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/deobf/NameMapper.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/deobf/NameMapper.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/StringUtils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/StringUtils.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/xmlgen/XMLChar.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/xmlgen/XMLChar.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$GenericObject.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$PrimitiveArg.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/ClassNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/ClassNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$UnknownArg.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$GenericType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$WildcardType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/info/ClassAliasInfo.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/info/ClassAliasInfo.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/clsp/NClass.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/clsp/NClass.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/Utils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/Utils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/parser/SignatureParser.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/parser/SignatureParser.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$ArrayArg.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/exceptions/JadxRuntimeException.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/exceptions/JadxRuntimeException.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/PrimitiveType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/PrimitiveType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/info/ClassInfo.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/info/ClassInfo.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/DexNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/DexNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/clsp/ClspGraph.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/clsp/ClspGraph.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$KnownType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/info/InfoStorage.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/info/InfoStorage.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType$ObjectType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/RootNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/RootNode.java
+ - target:
+   - dir: jadx-gui/build/classes/java/main
+     file: jadx/gui/utils/UiUtils.class
+     sourceDir: jadx-gui/src/main/java
+     sourceFile: jadx/gui/utils/UiUtils.java
+   - dir: jadx-gui/build/classes/java/main
+     file: jadx/gui/utils/OverlayIcon.class
+     sourceDir: jadx-gui/src/main/java
+     sourceFile: jadx/gui/utils/OverlayIcon.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/info/AccessInfo.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/info/AccessInfo.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/exceptions/JadxRuntimeException.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/exceptions/JadxRuntimeException.java
+ - target:
+   - dir: jadx-gui/build/classes/java/main
+     file: jadx/gui/utils/FontUtils.class
+     sourceDir: jadx-gui/src/main/java
+     sourceFile: jadx/gui/utils/FontUtils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/exceptions/JadxRuntimeException.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/exceptions/JadxRuntimeException.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/codegen/TypeGen.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/codegen/TypeGen.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/deobf/NameMapper.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/deobf/NameMapper.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/ArgType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/ArgType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/exceptions/JadxRuntimeException.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/exceptions/JadxRuntimeException.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/IDexNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/IDexNode.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/instructions/args/PrimitiveType.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/instructions/args/PrimitiveType.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/StringUtils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/StringUtils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/Utils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/Utils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/dex/nodes/RootNode.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/dex/nodes/RootNode.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/StringUtils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/StringUtils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/api/JadxArgs.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/api/JadxArgs.java
+ - target:
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/Utils.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/Utils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/Utils$1.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/Utils.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/codegen/CodeWriter.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/codegen/CodeWriter.java
+   - dir: jadx-core/build/classes/java/main
+     file: jadx/core/utils/ImmutableList.class
+     sourceDir: jadx-core/src/main/java
+     sourceFile: jadx/core/utils/ImmutableList.java
+ - target:
+   - dir: jadx-gui/build/classes/java/main
+     file: jadx/gui/utils/CertificateManager.class
+     sourceDir: jadx-gui/src/main/java
+     sourceFile: jadx/gui/utils/CertificateManager.java
+   - dir: jadx-gui/build/classes/java/main
+     file: jadx/gui/utils/NLS.class
+     sourceDir: jadx-gui/src/main/java
+     sourceFile: jadx/gui/utils/NLS.java
